@@ -33,7 +33,7 @@ h1 {
 
 .tab {
   padding: 6px 12px;
-  background: #362466;
+  background: #1e1e1e;
   border: none;
   border-radius: 8px;
   color: #ccc;
@@ -71,6 +71,11 @@ h1 {
   margin: 15px auto 30px;
 }
 
+.cell.filled { 
+  background: #01718a;
+  border: 2px solid #333; 
+}
+
 /* Cells */
 .cell, .gap {
   width: 55px; /* bigger */
@@ -91,19 +96,15 @@ h1 {
 /* Hover effect */
 .cell:hover:not(.special):not(.filled) {
   transform: translateY(-4px);
-  box-shadow: 0 6px 12px rgba(187, 134, 252, 0.3);
+  box-shadow: 0 6px 12px rgba(0, 248, 12, 0.3);
   border-color: #bb86fc;
 }
 
-.cell.filled { 
-  border: 2px solid #01718a; 
-  background: #01718a;
-}
 
 .cell.special {
   font-size: 0.8rem;
-  color: #bb86fc;
-  border-color: #6200ea;
+  color: #bb86fc; /*color asterisco*/
+  border-color: #6200ea; /*Color cel·la especial (* i **)*/
 }
 
 .cell .num  { font-size: 0.6rem; opacity: 0.7; }
@@ -118,7 +119,3 @@ h1 {
 #quiz { padding: 10px; }
 .question { font-size: 2rem; height: 80px; background: #1e1e1e; border-radius: 8px; margin: 10px 0; }
 input, button, select { border-radius: 8px; font-size: 0.8rem; }
-
-
-
-

@@ -95,7 +95,10 @@ h1 {
   border-color: #bb86fc;
 }
 
-.cell.filled { border: 2px solid #01718a; }
+.cell.filled { 
+  border: 2px solid #01718a; 
+  background: #01718a;
+}
 
 .cell.special {
   font-size: 0.8rem;
@@ -115,6 +118,7 @@ h1 {
 #quiz { padding: 10px; }
 .question { font-size: 2rem; height: 80px; background: #1e1e1e; border-radius: 8px; margin: 10px 0; }
 input, button, select { border-radius: 8px; font-size: 0.8rem; }
+
 
 
 

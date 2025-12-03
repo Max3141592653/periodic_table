@@ -7,89 +7,28 @@ const scoreDisplay = document.createElement('div');
 scoreDisplay.id = 'score-display';
 document.body.appendChild(scoreDisplay);
 
-// Mapatge de groupBlock (elements.js) a les classes CSS que tens al style.css
-function getCategoryClass(groupBlock) {
-  if (!groupBlock) return 'nonmetal';
-  const g = groupBlock.toLowerCase();
-  if (g.includes('noble')) return 'noble-gas';
-  if (g.includes('metalloid')) return 'semi-metal';
-  if (g.includes('halogen')) return 'nonmetal';
-  if (g.includes('alkali') || g.includes('alkaline') || g.includes('metal')) return 'metal';
-  if (g.includes('transition')) return 'metal';
-  if (g.includes('post-transition')) return 'metal';
-  if (g.includes('lanthanoid')) return 'metal';
-  if (g.includes('actinoid')) return 'metal';
-  if (g.includes('nonmetal')) return 'nonmetal';
-  return 'nonmetal';
-}
-
-
 let hits = 0;
 let errors = 0;
 let seconds = 0;
 let timerInterval;
-let mistakesList = []; // per guardar errors
+let mistakesList = [];
 
-// Cronòmetre
-function startTimer() {
-  timerInterval = setInterval(() => {
-    seconds++;
-    const min = Math.floor(seconds / 60);
-    const sec = seconds % 60;
-    timerEl.textContent = `${min}:${sec.toString().padStart(2,'0')}`;
-  }, 1000);
-}
+// Llista elements de la versió simple
+const simpleElements = [
+  "H","Li","Na","K","Rb","Cs","Fr",
+  "Be","Mg","Ca","Sr","Ba","Ra",
+  "Cr","Mn","Fe","Co","Ni","Cu","Zn","Pd","Pt","Ag","Au","Cd","Hg",
+  "B","Al","Ga","In","Tl",
+  "C","Si","Ge","Sn","Pb",
+  "N","P","As","Sb","Bi",
+  "O","S","Se","Te","Po",
+  "F","Cl","Br","I","At",
+  "He","Ne","Ar","Kr","Xe","Rn"
+];
 
-function flashTable() {
-  // si ja està fent-se el flash, no fem res
-  if (table.classList.contains('flash')) return;
-
-  table.classList.add('flash');
-  scoreDisplay.textContent = `Puntuació ${hits}     \u00A0 - Errors ${errors} -  Temps ${seconds}` ;
-  scoreDisplay.style.display = 'block';
-
-  // Després del temps del missatge (5s segons), apliquem colors i aturem el cronòmetre
-  setTimeout(() => {
-    table.classList.remove('flash');
-    scoreDisplay.style.display = 'none';
-
-    // Apliquem classes de categoria a totes les cel·les omplertes (només després del flash)
-    document.querySelectorAll('.cell.filled').forEach(cell => {
-      const num = parseInt(cell.dataset.num);
-      if (!num) return;
-      const el = elements.find(e => e.atomicNumber === num);
-      if (!el) return;
-      const cls = getCategoryClass(el.groupBlock);
-      cell.classList.add(cls);
-    });
-
-    // Aturem el cronòmetre si està corrent
-    if (timerInterval) {
-      clearInterval(timerInterval);
-      timerInterval = null;
-    }
-  }, 5000);
-}
-
-
-// Ara comprovem per hits (nombre d'encerts reals)
-// Activem destello quan hits === 118
-// Comprova si taula plena i atura cronòmetre
-function checkTableFull() {
-  const totalCells = document.querySelectorAll('#periodic-table .cell').length;
-  const filledCells = document.querySelectorAll('#periodic-table .cell.filled').length;
-
-  if(filledCells === totalCells || hits === 118) {
-    clearInterval(timerInterval);  // Atura el cronòmetre
-    flashTable();                  // Activem destell i colors finals
-  }
-}
-
-
-
-// Map de colors segons groupBlock
+// Funció mapatge groupBlock -> classe CSS
 function getCategoryClass(groupBlock) {
-  switch(groupBlock) {
+  switch(groupBlock?.toLowerCase()) {
     case 'metal': return 'metal';
     case 'nonmetal': return 'nonmetal';
     case 'metalloid': return 'semi-metal';
@@ -105,7 +44,160 @@ function getCategoryClass(groupBlock) {
   }
 }
 
-// Crear cel·la
+// Cronòmetre
+function startTimer() {
+  timerInterval = setInterval(() => {
+    seconds++;
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    timerEl.textContent = `${min}:${sec.toString().padStart(2,'0')}`;
+  }, 1000);
+}
+
+// flashTable modificat: només aplica colors a cel·les opacitat 1
+function flashTable() {
+  if (table.classList.contains('flash')) return;
+
+  table.classList.add('flash');
+  scoreDisplay.textContent = `Puntuació ${hits}     \u00A0 - Errors ${errors} - Temps ${seconds}`;
+  scoreDisplay.style.display = 'block';
+
+  setTimeout(() => {
+    table.classList.remove('flash');
+    scoreDisplay.style.display = 'none';
+
+    document.querySelectorAll('.cell.filled').forEach(cell => {
+      if (parseFloat(cell.style.opacity || '1') < 1) return;
+
+      const num = parseInt(cell.dataset.num);
+      if (!num) return;
+      const el = elements.find(e => e.atomicNumber === num);
+      if (!el) return;
+
+      const cls = getCategoryClass(el.groupBlock);
+      cell.classList.add(cls);
+    });
+
+    if (switchInput) switchInput.checked = true;
+
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+  }, 5000);
+}
+
+// ------------------ SELECTOR LATERAL ------------------ //
+let currentVersion = 'full';
+
+const versionWrapper = document.createElement('div');
+versionWrapper.style.position = 'fixed';
+versionWrapper.style.left = '10px';
+versionWrapper.style.top = '50%';
+versionWrapper.style.transform = 'translateY(-50%)';
+versionWrapper.style.display = 'flex';
+versionWrapper.style.flexDirection = 'column';
+versionWrapper.style.gap = '10px';
+versionWrapper.style.fontFamily = 'Arial, sans-serif';
+versionWrapper.style.fontSize = '16px';
+document.body.appendChild(versionWrapper);
+
+const simpleOption = document.createElement('span');
+const fullOption = document.createElement('span');
+
+simpleOption.textContent = 'Versió Simple.';
+fullOption.textContent = 'Versió Completa.';
+
+simpleOption.style.cursor = 'pointer';
+fullOption.style.cursor = 'pointer';
+
+function updateVersionVisual(selected) {
+  if(selected === 'simple'){
+    simpleOption.style.color = '#8e44ad';
+    fullOption.style.color = '#555';
+  } else {
+    fullOption.style.color = '#8e44ad';
+    simpleOption.style.color = '#555';
+  }
+  currentVersion = selected;
+}
+
+simpleOption.addEventListener('click', () => {
+  updateVersionVisual('simple');
+  updateTableVersion('simple');
+});
+
+fullOption.addEventListener('click', () => {
+  updateVersionVisual('full');
+  updateTableVersion('full');
+});
+
+versionWrapper.appendChild(simpleOption);
+versionWrapper.appendChild(fullOption);
+updateVersionVisual(currentVersion);
+
+// ------------------ FUNCIO UPDATE TABLE ------------------ //
+function updateTableVersion(version) {
+  version = version || currentVersion;
+
+  document.querySelectorAll('#periodic-table .cell').forEach(cell => {
+    const num = parseInt(cell.dataset.num);
+    const el = elements.find(e => e.atomicNumber === num);
+    if(!el) return;
+
+    if(version === 'simple') {
+      if(simpleElements.includes(el.symbol)) {
+        cell.style.opacity = '1';
+        cell.style.pointerEvents = 'auto';
+        if(!cell.classList.contains('filled')){
+          cell.innerHTML = `<div class="num">${el.atomicNumber}</div><div class="sym">?</div>`;
+        }
+      } else {
+        cell.style.opacity = '0.3';
+        cell.style.pointerEvents = 'none';
+        cell.innerHTML = `<div class="num">${el.atomicNumber}</div><div class="sym">${el.symbol}</div>`;
+        cell.classList.add('filled');
+      }
+    } else {
+      cell.style.opacity = '1';
+      cell.style.pointerEvents = 'auto';
+      if(simpleElements.includes(el.symbol) === false && cell.classList.contains('filled')){
+        cell.innerHTML = `<div class="num">${el.atomicNumber}</div><div class="sym">?</div>`;
+        cell.classList.remove('filled');
+      }
+      if(!cell.classList.contains('filled')){
+        cell.innerHTML = `<div class="num">${el.atomicNumber}</div><div class="sym">?</div>`;
+      }
+    }
+  });
+}
+
+// ------------------ CHECK TAULA ------------------ //
+function checkTableFull() {
+  const version = currentVersion;
+  let filledCount, totalCount;
+
+  if(version === 'simple') {
+    const simpleCells = Array.from(document.querySelectorAll('#periodic-table .cell')).filter(cell=>{
+      const num = parseInt(cell.dataset.num);
+      const el = elements.find(e=>e.atomicNumber===num);
+      return el && simpleElements.includes(el.symbol);
+    });
+    totalCount = simpleCells.length;
+    filledCount = simpleCells.filter(c=>c.classList.contains('filled')).length;
+  } else {
+    const allCells = document.querySelectorAll('#periodic-table .cell');
+    totalCount = allCells.length;
+    filledCount = Array.from(allCells).filter(c=>c.classList.contains('filled')).length;
+  }
+
+  if(filledCount === totalCount || hits === 118) {
+    clearInterval(timerInterval);
+    flashTable();
+  }
+}
+
+// ------------------ CREAR CEL·LES ------------------ //
 function createCell(num) {
   const cell = document.createElement('div');
   const el = elements.find(e => e.atomicNumber === num);
@@ -121,19 +213,12 @@ function createCell(num) {
     cell.onclick = () => {
       const guess = prompt(`Element ${num} – Symbol o name:`)?.trim();
       if (!guess) return;
-    
-      if (el && (el.symbol.toLowerCase() === guess.toLowerCase() || el.name.toLowerCase() === guess.toLowerCase())) {
-        // incrementem hits només quan és correcte i num és un nombre real
+
+      if(el && (el.symbol.toLowerCase() === guess.toLowerCase() || el.name.toLowerCase() === guess.toLowerCase())){
         hits++;
         hitsEl.textContent = hits;
-    
-        // mostrem la informació, marquem com a filled, PERO NO posem classe de categoria ara
-        cell.innerHTML = `<div class="num">${el.atomicNumber}</div>
-                          <div class="sym">${el.symbol}</div>
-                          <div class="name">${el.name}</div>`;
+        cell.innerHTML = `<div class="num">${el.atomicNumber}</div><div class="sym">${el.symbol}</div><div class="name">${el.name}</div>`;
         cell.classList.add('filled');
-    
-        // comprovem si la taula està plena (ara basat en hits)
         checkTableFull();
       } else {
         errors++;
@@ -142,12 +227,11 @@ function createCell(num) {
         alert('Wrong – try again!');
       }
     };
-    
   }
   return cell;
 }
 
-// Main table
+// ------------------ CREAR TAULA ------------------ //
 const mainRows = [
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2],
   [3,4,0,0,0,0,0,0,0,0,0,0,5,6,7,8,9,10],
@@ -163,40 +247,21 @@ const mainRows = [
 
 mainRows.forEach(row => row.forEach(num => table.appendChild(createCell(num))));
 
+// ------------------ CRONÒMETRE ------------------ //
 startTimer();
 
-// Click a errors per veure llistat
-errorsEl.addEventListener('click', ()=>{
+// ------------------ ERROS CLICK ------------------ //
+errorsEl.addEventListener('click', ()=> {
   if(mistakesList.length>0) alert("Errors d'aquesta ronda:\n"+mistakesList.join('\n'));
 });
 
-// Botó revelar colors parcials
-// Botó Reveal colors
-const revealBtn = document.createElement('button');
-revealBtn.id = 'reveal-colors';
-revealBtn.textContent = 'Mostrar colors';
-document.body.appendChild(revealBtn);
-
-
-revealBtn.onclick = () => {
-  document.querySelectorAll('.cell.filled').forEach(cell => {
-    const num = parseInt(cell.dataset.num);
-    if (!num) return;
-    const el = elements.find(e => e.atomicNumber === num);
-    if (!el) return;
-    const cls = getCategoryClass(el.groupBlock);
-    cell.classList.add(cls);
-  });
-};
-
-document.body.appendChild(revealBtn);
-
-
-
-// Crear botó per omplir tota la taula
+// ------------------ BOTÓ OMPLIR ------------------ //
 const fillBtn = document.createElement('button');
 fillBtn.id = 'fill-table';
 fillBtn.textContent = 'Omplir taula';
+fillBtn.style.position = 'fixed';
+fillBtn.style.right = '10px';
+fillBtn.style.bottom = '10px';
 fillBtn.style.padding = '10px 15px';
 fillBtn.style.background = '#6200ea';
 fillBtn.style.color = '#fff';
@@ -204,45 +269,66 @@ fillBtn.style.border = 'none';
 fillBtn.style.borderRadius = '8px';
 fillBtn.style.cursor = 'pointer';
 fillBtn.style.zIndex = '1000';
+fillBtn.style.display = 'none';
 document.body.appendChild(fillBtn);
 
-// Funció per omplir la taula
 fillBtn.onclick = () => {
-  elements.forEach(el => {
-    if(el.atomicNumber === 2) return; // No fem Helio
+  elements.forEach(el=>{
+    if(el.atomicNumber === 2) return;
     const cell = document.querySelector(`.cell[data-num='${el.atomicNumber}']`);
-    if(cell && !cell.classList.contains('filled')) {
-      cell.innerHTML = `
-        <div class="num">${el.atomicNumber}</div>
-        <div class="sym">${el.symbol}</div>
-        <div class="name">${el.name}</div>`;
+    if(cell && !cell.classList.contains('filled')){
+      cell.innerHTML = `<div class="num">${el.atomicNumber}</div><div class="sym">${el.symbol}</div><div class="name">${el.name}</div>`;
       cell.classList.add('filled');
-      hits++; // augmentem encerts
+      hits++;
     }
   });
-
   hitsEl.textContent = hits;
-
-  // Comprovem si la taula està plena
-  if(hits === 118) {
-    flashTable(); // activa destello i mostra colors
-  }
+  if(hits === 118) flashTable();
 };
 
-
-  // Actualitza comptadors
-  hits = document.querySelectorAll('.cell.filled').length;
-  hitsEl.textContent = hits;
-
-  checkTableFull();
-
-
-// Amagar el botó d'admin per defecte
-fillBtn.style.display = "none";
-
-// Combinació secreta: CTRL + SHIFT + A
-document.addEventListener("keydown", (e) => {
-  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "k") {
+// ------------------ COMBINACIÓ SECRET ------------------ //
+document.addEventListener("keydown", (e)=>{
+  if(e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "k"){
     fillBtn.style.display = fillBtn.style.display === "none" ? "block" : "none";
   }
+});
+
+// ------------------ SWITCH COLORS ------------------ //
+const switchWrapper = document.createElement('div');
+switchWrapper.className = 'switch-wrapper';
+
+const switchInput = document.createElement('input');
+switchInput.type = 'checkbox';
+switchInput.id = 'switch-colors';
+
+const switchLabel = document.createElement('label');
+switchLabel.htmlFor = 'switch-colors';
+
+const switchText = document.createElement('span');
+switchText.textContent = 'Mostrar colors';
+
+switchWrapper.appendChild(switchInput);
+switchWrapper.appendChild(switchLabel);
+switchWrapper.appendChild(switchText);
+document.body.appendChild(switchWrapper);
+
+switchInput.addEventListener('change', () => {
+  const active = switchInput.checked;
+
+  document.querySelectorAll('.cell.filled').forEach(cell => {
+    if (parseFloat(cell.style.opacity || '1') < 1) return;
+
+    const num = parseInt(cell.dataset.num);
+    if (!num) return;
+    const el = elements.find(e => e.atomicNumber === num);
+    if (!el) return;
+
+    const cls = getCategoryClass(el.groupBlock);
+
+    if (active) {
+      cell.classList.add(cls);
+    } else {
+      cell.classList.remove(cls);
+    }
+  });
 });

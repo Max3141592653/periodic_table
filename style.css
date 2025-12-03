@@ -209,3 +209,74 @@ h1 {
 #reveal-colors:hover {
   background-color: #00bfa5;
 }
+
+/* Switch per Mostrar colors */
+.switch-wrapper {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  font-family: 'Inter', sans-serif;
+  z-index: 1000;
+}
+
+.switch-wrapper input {
+  display: none;
+}
+
+.switch-wrapper label {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+  background: #333;
+  border-radius: 13px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.switch-wrapper label::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.switch-wrapper input:checked + label {
+  background: #6200ea;
+}
+
+.switch-wrapper input:checked + label::after {
+  transform: translateX(24px);
+}
+
+.switch-wrapper span {
+  margin-left: 10px;
+  color: #fff;
+  font-size: 1rem;
+}
+
+/* Estil desplegable */
+#version-select {
+  font-family: 'Inter', sans-serif;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  background: #1e1e1e;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: 0.3s;
+  margin-bottom: 15px;
+}
+
+#version-select:hover {
+  background: #6200ea;
+  color: #fff;
+}

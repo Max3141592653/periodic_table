@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #0a0a0a;
+  color: #eee;
+  font-size: 10px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+h1 {
+  text-align: center;
+  margin: 0px 0 0px;
+  font-size: 2.5rem;
+  background: linear-gradient(90deg, #bb86fc, #03dac6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 6px 12px;
+  background: #1e1e1e;
+  border: none;
+  border-radius: 8px;
+  color: #ccc;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.tab.active, .tab:hover { 
+  background: #6200ea; 
+  color: white; 
+}
+
+.tab-content { display: none; text-align: center; }
+.tab-content.active { display: block; }
+
+/* Main table */
+#periodic-table {
+  display: grid;
+  grid-template-columns: repeat(18, 1fr);
+  gap: 4px;
+  max-width: 1050px; /* bigger table */
+  margin: 0 auto;
+  background: #111;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+/* Bottom f-block rows */
+.series-wrapper {
+  display: grid;
+  grid-template-columns: repeat(18, 1fr);
+  gap: 4px;
+  max-width: 1050px;
+  margin: 15px auto 30px;
+}
+
+.cell.filled { 
+  background: #01718a;
+  border: 2px solid #333; 
+}
+
+/* Cells */
+.cell, .gap {
+  width: 55px; /* bigger */
+  height: 55px;
+  background: #1e1e1e;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 2px solid #333;
+  font-size: 0.7rem;
+  box-sizing: border-box;
+  transition: all 0.3s; /* hover effect back */
+}
+
+/* Hover effect */
+.cell:hover:not(.special):not(.filled) {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 248, 12, 0.3);
+  border-color: #bb86fc;
+}
+
+
+.cell.special {
+  font-size: 0.8rem;
+  color: #bb86fc; /*color asterisco*/
+  border-color: #6200ea; /*Color cel·la especial (* i **)*/
+}
+
+.cell .num  { font-size: 0.6rem; opacity: 0.7; }
+.cell .sym  { font-size: 1.2rem; font-weight: bold; margin: 2px 0; }
+.cell .name { font-size: 0.6rem; opacity: 0.8; }
+
+.gap { visibility: hidden; }
+
+.info { margin-top: 10px; color: #888; font-size: 0.9rem; }
+
+/* Quiz adjustments */
+#quiz { padding: 10px; }
+.question { font-size: 2rem; height: 80px; background: #1e1e1e; border-radius: 8px; margin: 10px 0; }
+input, button, select { border-radius: 8px; font-size: 0.8rem; }

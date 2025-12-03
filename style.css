@@ -33,7 +33,7 @@ h1 {
 
 .tab {
   padding: 6px 12px;
-  background: #1e1e1e;
+  background: #362466;
   border: none;
   border-radius: 8px;
   color: #ccc;
@@ -115,3 +115,4 @@ h1 {
 #quiz { padding: 10px; }
 .question { font-size: 2rem; height: 80px; background: #1e1e1e; border-radius: 8px; margin: 10px 0; }
 input, button, select { border-radius: 8px; font-size: 0.8rem; }
+

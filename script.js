@@ -37,7 +37,7 @@ function createCell(num) {
           <div class="num">${el.atomicNumber}</div>
           <div class="sym">${el.symbol}</div>
           <div class="name">${el.name}</div>`;
-        cell.style.backgroundColor = el.cpk || '#333';
+        cell.style.backgroundColor = el.cpk || '#01718a';
         cell.classList.add('filled');
       } else {
         alert("Wrong – try again!");
@@ -63,4 +63,5 @@ const mainRows = [
 
 // Add main rows
 mainRows.forEach(row => row.forEach(num => table.appendChild(createCell(num))));
+
 

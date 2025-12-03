@@ -105,8 +105,8 @@ document.body.appendChild(versionWrapper);
 const simpleOption = document.createElement('span');
 const fullOption = document.createElement('span');
 
-simpleOption.textContent = 'Versió Simple.';
-fullOption.textContent = 'Versió Completa.';
+simpleOption.textContent = 'SIMPLE';
+fullOption.textContent = 'COMPLETA';
 
 simpleOption.style.cursor = 'pointer';
 fullOption.style.cursor = 'pointer';

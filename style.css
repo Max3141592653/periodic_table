@@ -18,7 +18,7 @@ body {
 h1 {
   text-align: center;
   margin: 0px 0 0px;
-  font-size: 2.5rem;
+  font-size: 2rem;
   background: linear-gradient(90deg, #bb86fc, #03dac6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -37,7 +37,7 @@ h1 {
   border: none;
   border-radius: 8px;
   color: #ccc;
-  font-size: 0.9rem;
+  font-size: 0.7rem;
   cursor: pointer;
   transition: 0.3s;
 }
@@ -55,7 +55,7 @@ h1 {
   display: grid;
   grid-template-columns: repeat(18, 1fr);
   gap: 4px;
-  max-width: 1050px; /* bigger table */
+  max-width: 1050px;
   margin: 0 auto;
   background: #111;
   padding: 15px;
@@ -78,8 +78,8 @@ h1 {
 
 /* Cells */
 .cell, .gap {
-  width: 55px; /* bigger */
-  height: 55px;
+  width: 53px;
+  height: 53px;
   background: #1e1e1e;
   border-radius: 8px;
   display: flex;
@@ -90,7 +90,14 @@ h1 {
   border: 2px solid #333;
   font-size: 0.7rem;
   box-sizing: border-box;
-  transition: all 0.3s; /* hover effect back */
+  transition: all 0.3s;
+}
+
+/* 🔥 Solució: gaps totalment invisibles (no clicables, no ocupen espai visual) */
+.gap {
+  background: transparent !important;
+  border: none !important;
+  pointer-events: none;
 }
 
 /* Hover effect */
@@ -100,22 +107,105 @@ h1 {
   border-color: #bb86fc;
 }
 
-
 .cell.special {
   font-size: 0.8rem;
-  color: #bb86fc; /*color asterisco*/
-  border-color: #6200ea; /*Color cel·la especial (* i **)*/
+  color: #bb86fc;
+  border-color: #6200ea;
 }
 
 .cell .num  { font-size: 0.6rem; opacity: 0.7; }
 .cell .sym  { font-size: 1.2rem; font-weight: bold; margin: 2px 0; }
 .cell .name { font-size: 0.6rem; opacity: 0.8; }
 
-.gap { visibility: hidden; }
-
 .info { margin-top: 10px; color: #888; font-size: 0.9rem; }
 
-/* Quiz adjustments */
-#quiz { padding: 10px; }
-.question { font-size: 2rem; height: 80px; background: #1e1e1e; border-radius: 8px; margin: 10px 0; }
-input, button, select { border-radius: 8px; font-size: 0.8rem; }
+/* Colors per categoria */
+.cell.metal       { background-color: #FFD700; color: #000; }
+.cell.nonmetal    { background-color: #7FFFD4; color: #000; }
+.cell.semi-metal  { background-color: #BA55D3; color: #fff; }
+.cell.noble-gas   { background-color: #1E90FF; color: #fff; }
+
+/* Destell de tota la taula */
+#periodic-table.flash {
+  animation: flash 0.6s ease;
+  box-shadow: 0 0 30px 10px #bb86fc inset, 0 0 30px 10px #03dac6;
+}
+
+@keyframes flash {
+  0% { box-shadow: none; }
+  50% { box-shadow: 0 0 30px 10px #bb86fc inset, 0 0 30px 10px #03dac6; }
+  100% { box-shadow: none; }
+}
+
+#scoreboard {
+  display: flex;
+  justify-content: space-around;
+  margin: 3px auto;
+  max-width: 500px;
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+#fill-table {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #6200ea;
+  color: white;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  transition: 1s;
+  z-index: 9999;
+}
+
+#fill-table:hover {
+  background: #7b2cff;
+  transform: scale(1.05);
+}
+
+#fill-table {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#fill-table[style*="block"] {
+  opacity: 1;
+}
+
+/* Missatge puntuació gran */
+#score-display {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 5rem;
+  color: #bb86fc;
+  background: rgba(0,0,0,0.7);
+  padding: 20px 40px;
+  border-radius: 24px;
+  display: none;
+  z-index: 999;
+  text-align: center;
+}
+
+/* Botó mostrar colors parcial */
+#reveal-colors {
+  position: fixed;
+  bottom: 20px;     /* distància des del fons */
+  left: 20px;       /* distància des de l’esquerra */
+  padding: 10px 10px;
+  background-color: #03dac6;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+#reveal-colors:hover {
+  background-color: #00bfa5;
+}

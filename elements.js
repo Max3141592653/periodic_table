@@ -53,7 +53,7 @@ const elements = [
     {atomicNumber:51,symbol:"Sb",name:"Antimoni",cpkHexColor:"9E63B5",groupBlock:"metalloid"},
     {atomicNumber:52,symbol:"Te",name:"Tel·luri",cpkHexColor:"D47A00",groupBlock:"metalloid"},
     {atomicNumber:53,symbol:"I",name:"Iode",cpkHexColor:"940094",groupBlock:"halogen"},
-    {atomicNumber:54,symbol:"Xe",name:"Xenó",cpkHexColor:"429EB0",groupBlock:"noble gas"},
+    {atomicNumber:54,symbol:"Xe",name:"Xenó",cpkHexColor:"429EB0",groupBlock: "noble gas"},
     {atomicNumber:55,symbol:"Cs",name:"Cesi",cpkHexColor:"57178F",groupBlock:"alkali metal"},
     {atomicNumber:56,symbol:"Ba",name:"Bari",cpkHexColor:"00C900",groupBlock:"alkaline earth metal"},
     {atomicNumber:57,symbol:"La",name:"Lantani",cpkHexColor:"70D4FF",groupBlock:"lanthanoid"},
@@ -84,7 +84,7 @@ const elements = [
     {atomicNumber:82,symbol:"Pb",name:"Plom",cpkHexColor:"575961",groupBlock:"metal"},
     {atomicNumber:83,symbol:"Bi",name:"Bismut",cpkHexColor:"9E4FB5",groupBlock:"metal"},
     {atomicNumber:84,symbol:"Po",name:"Poloni",cpkHexColor:"AB5C00",groupBlock:"metalloid"},
-    {atomicNumber:85,symbol:"At",name:"Àstat",cpkHexColor:"754F45",groupBlock:"halogen"},
+    {atomicNumber:85,symbol:"At",name:"Àstat",cpkHexColor:"754F45",groupBlock:"nonmetal"},
     {atomicNumber:86,symbol:"Rn",name:"Radó",cpkHexColor:"428296",groupBlock:"noble gas"},
     {atomicNumber:87,symbol:"Fr",name:"Franci",cpkHexColor:"420066",groupBlock:"alkali metal"},
     {atomicNumber:88,symbol:"Ra",name:"Radi",cpkHexColor:"007D00",groupBlock:"alkaline earth metal"},
@@ -116,7 +116,7 @@ const elements = [
     {atomicNumber:114,symbol:"Fl",name:"Flerovi",cpkHexColor:"",groupBlock:"post-transition metal"},
     {atomicNumber:115,symbol:"Mc",name:"Moscovi",cpkHexColor:"",groupBlock:"post-transition metal"},
     {atomicNumber:116,symbol:"Lv",name:"Livermori",cpkHexColor:"",groupBlock:"post-transition metal"},
-    {atomicNumber:117,symbol:"Ts",name:"Tennes",cpkHexColor:"",groupBlock:"post-transition metal"},
+    {atomicNumber:117,symbol:"Ts",name:"Tennes",cpkHexColor:"",groupBlock:"nonmetal"},
     {atomicNumber:118,symbol:"Og",name:"Oganessó",cpkHexColor:"",groupBlock:"noble gas"}
   ];
 

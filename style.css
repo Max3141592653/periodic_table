@@ -120,10 +120,10 @@ h1 {
 .info { margin-top: 10px; color: #888; font-size: 0.9rem; }
 
 /* Colors per categoria */
-.cell.metal       { background-color: #FFD700; color: #000; }
-.cell.nonmetal    { background-color: #7FFFD4; color: #000; }
-.cell.semi-metal  { background-color: #BA55D3; color: #fff; }
-.cell.noble-gas   { background-color: #1E90FF; color: #fff; }
+.cell.metal       { background-color: #afeec7; color: #000; }
+.cell.nonmetal    { background-color: #fcec95; color: #000; }
+.cell.semi-metal  { background-color: #f8c69a; color: #000000; }
+.cell.noble-gas   { background-color: #cea8ff; color: #000000; }
 
 /* Destell de tota la taula */
 #periodic-table.flash {

@@ -37,7 +37,7 @@ const elements = [
     {atomicNumber:35,symbol:"Br",name:"Brom",cpkHexColor:"A62929",groupBlock:"halogen"},
     {atomicNumber:36,symbol:"Kr",name:"Kriptó",cpkHexColor:"5CB8D1",groupBlock:"noble gas"},
     {atomicNumber:37,symbol:"Rb",name:"Rubidi",cpkHexColor:"702EB0",groupBlock:"alkali metal"},
-    {atomicNumber:38,symbol:"Sr",name:"Stronci",cpkHexColor:"00FF00",groupBlock:"alkaline earth metal"},
+    {atomicNumber:38,symbol:"Sr",name:"Estronci",cpkHexColor:"00FF00",groupBlock:"alkaline earth metal"},
     {atomicNumber:39,symbol:"Y",name:"Itri",cpkHexColor:"94FFFF",groupBlock:"transition metal"},
     {atomicNumber:40,symbol:"Zr",name:"Zirconi",cpkHexColor:"94E0E0",groupBlock:"transition metal"},
     {atomicNumber:41,symbol:"Nb",name:"Niobi",cpkHexColor:"73C2C9",groupBlock:"transition metal"},
@@ -132,4 +132,5 @@ elements.forEach(e => {
   else cat="metal";
   e.category = cat;
 });
+
 

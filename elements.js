@@ -3,7 +3,7 @@ const elements = [
     {atomicNumber:1,symbol:"H",name:"Hidrogen",cpkHexColor:"FFFFFF",groupBlock:"nonmetal"},
     {atomicNumber:2,symbol:"He",name:"Heli",cpkHexColor:"D9FFFF",groupBlock:"noble gas"},
     {atomicNumber:3,symbol:"Li",name:"Liti",cpkHexColor:"CC80FF",groupBlock:"alkali metal"},
-    {atomicNumber:4,symbol:"Be",name:"Berili",cpkHexColor:"C2FF00",groupBlock:"alkaline earth metal"},
+    {atomicNumber:4,symbol:"Be",name:"Beril·li",cpkHexColor:"C2FF00",groupBlock:"alkaline earth metal"},
     {atomicNumber:5,symbol:"B",name:"Bor",cpkHexColor:"FFB5B5",groupBlock:"metalloid"},
     {atomicNumber:6,symbol:"C",name:"Carboni",cpkHexColor:"909090",groupBlock:"nonmetal"},
     {atomicNumber:7,symbol:"N",name:"Nitrogen",cpkHexColor:"3050F8",groupBlock:"nonmetal"},
@@ -132,3 +132,4 @@ elements.forEach(e => {
   else cat="metal";
   e.category = cat;
 });
+

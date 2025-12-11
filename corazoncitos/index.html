@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Corets 3D interactius</title>
+  <style>
+    /* Base pene */
+    :root{
+      --bg:#000;
+      --spawn-interval:230; /* ms between spawns */
+    }
+    html,body{height:100%;margin:0;background:var(--bg);overflow:hidden;font-family:Inter,system-ui,Arial}
+
+    /* Scene wrapper provides perspective for 3D hearts */
+    .scene{
+      position:fixed;inset:0;pointer-events:none;perspective:1200px;
+      perspective-origin:50% 60%;
+    }
+
+    /* Each heart is an absolutely positioned element */
+    .heart{
+      --size:36px; /* default size */
+      position:absolute;left:50%;top:100%;transform-style:preserve-3d;pointer-events:auto;
+      width:var(--size);height:var(--size);
+      transform:translate(-50%,0) rotate(-45deg) translateZ(0);
+      will-change:transform,opacity,filter;
+      display:block;z-index:1000;
+      transition:filter 220ms ease, box-shadow 220ms ease;
+    }
+
+    /* Visual shape using pseudo-elements to make the two lobes */
+    .heart .shape{
+      position:relative;width:100%;height:100%;
+      background:linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0));
+      transform:rotate(45deg);
+      border-radius:10%;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+      overflow:visible;
+      backface-visibility:hidden;
+    }
+    .heart .shape::before,
+    .heart .shape::after{
+      content:"";position:absolute;width:100%;height:100%;border-radius:50%;
+      background:inherit;left:0;top:0;transform:translate(-50%, -50%);
+    }
+    .heart .shape::before{left:50%;transform:translate(-50%,-50%);}
+    .heart .shape::after{top:50%;transform:translate(-50%,-50%);} /* two circular lobes */
+
+    /* Depth / lighting — simulate a glossy surface */
+    .heart .gloss{
+      position:absolute;inset:0;border-radius:20%;pointer-events:none;mix-blend-mode:overlay;
+      background:radial-gradient(60% 40% at 30% 20%, rgba(255,255,255,0.45), rgba(255,255,255,0) 35%);
+      transform:rotate(45deg);
+    }
+
+    /* Shadow on the page (soft) - separate element to allow blurred shadow */
+    .heart .floor-shadow{
+      position:absolute;left:50%;top:100%;transform:translate(-50%,-8px);width:120%;height:14px;border-radius:999px;
+      filter:blur(10px);opacity:0.55;z-index:-1;pointer-events:none;
+      transition:opacity 180ms ease, transform 260ms ease;
+      background:radial-gradient(ellipse at center, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.05) 60%);
+    }
+
+    /* Variants for size and stronger 3D shadow */
+    .heart.small{--size:22px}
+    .heart.big{--size:58px}
+
+    /* Hover & active interactions */
+    .heart:hover{filter:brightness(1.12) saturate(1.05);z-index:2000}
+    .heart:active{transform:translate(-50%, -10px) rotate(-45deg) scale(0.95) translateZ(60px)}
+
+    /* Pop animation when clicked */
+    @keyframes popAway{
+      0%{opacity:1;transform-origin:center;transform:translate(-50%,0) rotate(-45deg) scale(1) translateZ(0)}
+      35%{transform:translate(-50%,-60vh) rotate(-45deg) scale(1.08) translateZ(220px); opacity:1}
+      100%{opacity:0;transform:translate(-50%,-110vh) rotate(-45deg) scale(0.8) translateZ(420px)}
+    }
+
+    /* Gentle rising animation for hearts not clicked (applied via JS) */
+    @keyframes riseSlow{
+      0%{transform:translate(-50%,0) rotate(-45deg) translateZ(var(--z,0))}
+      100%{transform:translate(-50%,-120vh) rotate(-45deg) translateZ(calc(var(--z,0) + 200px))}
+    }
+
+    /* Small tilt on spawn to give variety */
+    @keyframes floatTilt{
+      0%{transform:translate(-50%,0) rotate(-45deg) translateZ(var(--z,0))}
+      50%{transform:translate(-48%,-6vh) rotate(-50deg) translateZ(calc(var(--z,0) + 40px))}
+      100%{transform:translate(-52%,-12vh) rotate(-40deg) translateZ(calc(var(--z,0) + 80px))}
+    }
+
+    /* Instruction overlay */
+    .ui{
+      position:fixed;left:16px;top:16px;color:#fff;opacity:0.9;font-size:13px;z-index:9999;backdrop-filter: blur(4px);
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:10px 12px;border-radius:8px;
+      border:1px solid rgba(255,255,255,0.04);
+    }
+
+    .ui b{display:inline-block;margin-right:8px}
+
+    /* Accessibility: prefers-reduced-motion support */
+    @media (prefers-reduced-motion: reduce){
+      .heart{animation:none !important;transition:none !important}
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="ui">Fes clic als corets per fer-los explotar ✨ · Arrossega el ratolí per inclinar-los</div>
+  <div class="scene" id="scene"></div>
+
+  <script>
+    // Config
+    const scene = document.getElementById('scene');
+    const SPAWN_INTERVAL = 230; // ms
+    const COLORS = [
+      '#ff3b6f', '#ff6b9f', '#ff8fb3', '#ffb6d1', '#ff4d6d', '#ff9aa2', '#ff7ab6', '#ffa8d6', '#ff80c0'
+    ];
+
+    // Utility: random between
+    const rnd = (min,max) => Math.random()*(max-min)+min;
+
+    // Make a heart element
+    function makeHeart(){
+      const el = document.createElement('div');
+      el.className = 'heart';
+      // random size class
+      const sizeRand = Math.random();
+      if(sizeRand < 0.15) el.classList.add('big');
+      else if(sizeRand < 0.4) el.classList.add('small');
+
+      // create inner shape
+      const shape = document.createElement('div');
+      shape.className = 'shape';
+      // pick color and gradient
+      const color = COLORS[Math.floor(Math.random()*COLORS.length)];
+      shape.style.background = `linear-gradient(180deg, ${shade(color,0.06)}, ${color})`;
+      // slight rotation variation for more 3D feel
+      el.style.setProperty('--z', Math.floor(rnd(-120,180)) + 'px');
+
+      // gloss & shadow
+      const gloss = document.createElement('div'); gloss.className='gloss';
+      const floorShadow = document.createElement('div'); floorShadow.className='floor-shadow';
+
+      // assemble
+      el.appendChild(shape);
+      el.appendChild(gloss);
+      el.appendChild(floorShadow);
+
+      // initial horizontal position random across screen width
+      const x = rnd(6, 94); // percent
+      el.style.left = x + '%';
+
+      // set initial top below the viewport
+      el.style.top = (100 + rnd(0,6)) + '%';
+
+      // random horizontal sway and duration
+      const dur = rnd(4200, 10500);
+      const anim = Math.random() < 0.55 ? 'riseSlow' : (Math.random()<0.5 ? 'floatTilt' : 'riseSlow');
+      el.style.animation = `${anim} ${dur}ms linear forwards`;
+
+      // subtle rotation on spawn
+      el.style.transform += ` rotate(${rnd(-55,-30)}deg)`;
+
+      // shadow opacity scaling with size and z
+      const z = parseInt(getComputedStyle(el).getPropertyValue('--z')) || 0;
+      floorShadow.style.opacity = (0.5 + (200 - Math.abs(z))/600);
+
+      // interaction: tilt toward pointer on mousemove
+      el.addEventListener('mousemove', (ev)=>{
+        const rect = el.getBoundingClientRect();
+        const cx = rect.left + rect.width/2;
+        const cy = rect.top + rect.height/2;
+        const dx = (ev.clientX - cx)/rect.width;
+        const dy = (ev.clientY - cy)/rect.height;
+        const tiltX = clamp(dy * -18, -25, 25);
+        const tiltY = clamp(dx * 22, -25, 25);
+        el.style.transform = `translate(-50%,0) rotate(-45deg) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateZ(${z}px)`;
+      });
+
+      // reset transform when pointer leaves
+      el.addEventListener('mouseleave', ()=>{
+        el.style.transform = `translate(-50%,0) rotate(-45deg) translateZ(${z}px)`;
+      });
+
+      // drag: allow user to drag the heart (pointer events)
+      let dragging = false;
+      let offset = {x:0,y:0};
+      el.addEventListener('pointerdown', (e)=>{
+        dragging = true; el.setPointerCapture(e.pointerId);
+        offset.x = e.clientX - el.getBoundingClientRect().left;
+        offset.y = e.clientY - el.getBoundingClientRect().top;
+      });
+      el.addEventListener('pointermove', (e)=>{
+        if(!dragging) return;
+        const left = e.clientX - offset.x + (el.offsetWidth/2);
+        const top = e.clientY - offset.y + (el.offsetHeight/2);
+        el.style.left = (left / window.innerWidth)*100 + '%';
+        el.style.top = (top / window.innerHeight)*100 + '%';
+        el.style.animation = 'none';
+      });
+      el.addEventListener('pointerup', (e)=>{ dragging=false; try{ el.releasePointerCapture(e.pointerId);}catch(e){} });
+      el.addEventListener('pointercancel', ()=> dragging=false);
+
+      // click to pop
+      el.addEventListener('click', (ev)=>{
+        ev.stopPropagation();
+        popHeart(el);
+      });
+
+      // remove after animation ends if not popped
+      el.addEventListener('animationend', ()=>{
+        if(!el.dataset.popped) el.remove();
+      });
+
+      return el;
+    }
+
+    // Pop effect: play a quick scale + particle burst then remove
+    function popHeart(el){
+      if(el.dataset.popped) return; el.dataset.popped = '1';
+      el.style.animation = 'popAway 900ms cubic-bezier(.2,.9,.3,1) forwards';
+      // small particle burst using tiny hearts
+      burstParticles(el);
+      // remove after animation
+      setTimeout(()=>el.remove(), 950);
+    }
+
+    function burstParticles(originEl){
+      const rect = originEl.getBoundingClientRect();
+      const count = Math.floor(rnd(8,16));
+      for(let i=0;i<count;i++){
+        const p = document.createElement('div'); p.className='heart small';
+        const shape = document.createElement('div'); shape.className='shape';
+        const color = COLORS[Math.floor(Math.random()*COLORS.length)];
+        shape.style.background = `linear-gradient(180deg, ${shade(color,0.06)}, ${color})`;
+        p.appendChild(shape);
+        const gloss = document.createElement('div'); gloss.className='gloss';
+        p.appendChild(gloss);
+        p.style.left = ((rect.left + rect.width/2)/window.innerWidth)*100 + '%';
+        p.style.top = ((rect.top + rect.height/2)/window.innerHeight)*100 + '%';
+        p.style.animation = 'none';
+        p.style.transition = 'transform 700ms cubic-bezier(.1,.8,.2,1), opacity 700ms linear';
+        p.style.transform = `translate(-50%,0) rotate(-45deg) translateZ(${rnd(40,220)}px)`;
+        scene.appendChild(p);
+        // animate outward
+        requestAnimationFrame(()=>{
+          const angle = rnd(0, Math.PI*2);
+          const dist = rnd(60, 220);
+          const tx = Math.cos(angle)*dist;
+          const ty = -Math.abs(Math.sin(angle))*rnd(40,150) - 50;
+          p.style.transform = `translate(calc(-50% + ${tx}px), ${ty}px) rotate(-45deg) translateZ(${rnd(20,420)}px) scale(${rnd(0.6,1.1)})`;
+          p.style.opacity = '0';
+        });
+        setTimeout(()=>p.remove(), 900);
+      }
+    }
+
+    // Helpers
+    function clamp(v,a,b){return Math.min(b,Math.max(a,v));}
+    function shade(hex, amt){
+      // quick lighten or darken hex by amt (-1..1)
+      const c = hex.replace('#','');
+      const num = parseInt(c,16);
+      let r = (num>>16) + Math.floor(255*amt);
+      let g = ((num>>8)&0x00FF) + Math.floor(255*amt);
+      let b = (num&0x0000FF) + Math.floor(255*amt);
+      r = clamp(Math.round(r),0,255); g = clamp(Math.round(g),0,255); b = clamp(Math.round(b),0,255);
+      return `rgb(${r},${g},${b})`;
+    }
+
+    // Spawn loop
+    let spawner = setInterval(()=>{
+      const h = makeHeart();
+      scene.appendChild(h);
+      // avoid memory leaks by capping number of hearts
+      if(scene.children.length > 200) scene.removeChild(scene.children[0]);
+    }, SPAWN_INTERVAL);
+
+    // Click on background to spawn a burst at pointer
+    document.body.addEventListener('click', (e)=>{
+      // ignore clicks that hit hearts (they stopPropagation in click handler)
+      if(e.target === document.body || e.target === scene){
+        // create a burst at click position
+        const fake = {getBoundingClientRect:()=>({left:e.clientX,top:e.clientY,width:6,height:6})};
+        burstParticles(fake);
+      }
+    });
+
+    // Resize -> nothing special
+
+    // Initial few hearts
+    for(let i=0;i<6;i++){ setTimeout(()=>{ scene.appendChild(makeHeart()); }, i*120); }
+
+    // Clean up on page hide
+    window.addEventListener('pagehide', ()=>{ clearInterval(spawner); });
+
+    // Accessibility: allow keyboard to pop focused hearts
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' || e.key === ' '){
+        const focused = document.activeElement;
+        if(focused && focused.classList && focused.classList.contains('heart')){
+          e.preventDefault(); popHeart(focused);
+        }
+      }
+    });
+
+  </script>
+</body>
+</html>
